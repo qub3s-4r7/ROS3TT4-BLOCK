@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS3TT4 BLOCK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Embed VT323 font directly */
+        @font-face {
+            font-family: 'VT323';
+            src: url('VT323-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Fallback system if font file is missing */
+        @font-face {
+            font-family: 'VT323';
+            src: url('https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJU.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --primary-blue: #b0f9ff;
+            --primary-blue-dark: #8adbdf;
+            --primary-blue-darker: #6aafb3;
+            --text-color: #121212;
+            --bg-color: #f8f8f8;
+            --card-bg: #ffffff;
+            --highlight: #00b6c9;
+            --secondary-highlight: #00839a;
+            --gray-text: #5a5a5a;
+            --light-border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'VT323', 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 18px;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* HEADER - mobile-friendly fixed solution */
+        .header {
+            position: sticky;
+            position: -webkit-sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        /* Center the logo properly */
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--highlight);
+            position: absolute;
+            left: 50%;
+			top: 55%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap; /* Prevent title from wrapping */
+        }
+
+        /* X icon positioning and sizing */
+        .social-link {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 30px;
+            width: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social-link:hover {
+            opacity: 0.9;
+        }
+
+        .x-icon {
+            max-height: 35px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .x-letter {
+            font-size: 16px;          /* Size of the X */
+            line-height: 1;           /* For better vertical centering */
+        }
+
+        .logo-text {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Glitch effect for logo */
+        .logo-text.glitched {
+            position: relative;
+        }
+
+        .logo-text.glitched::before,
+        .logo-text.glitched::after {
+            content: "ROS3TT4 BLOCK LEXICON";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+        }
+
+        .logo-text.glitched::before {
+            transform: translateX(-3px);
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+            animation: glitch-anim-1 0.5s infinite linear alternate;
+        }
+
+        .logo-text.glitched::after {
+            transform: translateX(3px);
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+            animation: glitch-anim-2 0.3s infinite linear alternate;
+        }
+
+        @keyframes glitch-anim-1 {
+            0%, 100% { opacity: 0; }
+            50%, 90% { opacity: 0.9; }
+        }
+
+        @keyframes glitch-anim-2 {
+            0%, 100% { opacity: 0; }
+            25%, 75% { opacity: 0.9; }
+        }
+
+        /* Mobile navigation button */
+        .burger-menu {
+            position: fixed;
+            left: 2%;
+            top: 0.5%; /* Center vertically in header */
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--highlight);
+            z-index: 1100;
+            display: none; /* Hidden by default on desktop */
+            background-color: var(--card-bg);
+            padding: 5px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .burger-menu {
+                display: block; /* Show on mobile */
+            }
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background-color: var(--card-bg);
+            padding: 40px 15px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 900;
+            border-right: 1px solid var(--light-border);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--primary-blue-dark);
+            border-radius: 3px;
+        }
+
+        .nav-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            border-bottom: 2px solid var(--highlight);
+            padding-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .nav-section {
+            margin-bottom: 15px;
+        }
+
+        .nav-section-title {
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            color: var(--text-color);
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-section-title:hover {
+            color: var(--highlight);
+        }
+
+        .nav-section-title::after {
+            content: '+';
+            color: var(--highlight);
+        }
+
+        .nav-section-title.active::after {
+            content: '-';
+        }
+
+        .nav-section-title.glitched {
+            position: relative;
+        }
+
+        .nav-section-title.glitched::before {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            transform: translateX(-3px);
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+        }
+
+        .nav-section-title.glitched::after {
+            content: '+';
+            color: var(--highlight);
+        }
+
+        .nav-items {
+            display: none;
+            padding-left: 15px;
+        }
+
+        .nav-items.active {
+            display: block;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+            cursor: pointer;
+            padding: 5px;
+            color: var(--gray-text);
+            border-left: 2px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: var(--highlight);
+            background-color: var(--primary-blue);
+            border-left-color: var(--secondary-highlight);
+        }
+
+        .nav-item.active {
+            color: var(--highlight);
+            background-color: var(--primary-blue);
+            border-left-color: var(--highlight);
+        }
+
+        /* Mobile sidebar adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px 30px 30px;
+            max-width: 100%;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 40px 20px 30px;
+            }
+        }
+
+        .title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--highlight);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--highlight);
+        }
+
+        /* Scan lines effect */
+        .scan-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            background-size: 100% 4px;
+            z-index: 2000;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* SECTIONS */
+        .section {
+            background-color: var(--card-bg);
+            border-radius: 0;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--light-border);
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--highlight);
+            font-weight: bold;
+            border-bottom: 1px solid var(--light-border);
+            padding-bottom: 10px;
+            font-family: 'VT323', 'Courier New', monospace;
+        }
+
+        .section-title.glitched {
+            position: relative;
+        }
+
+        .section-title.glitched::before {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            transform: translateX(-5px);
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+
+        .section-title.glitched::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%; 
+            background-color: var(--card-bg);
+            transform: translateX(3px);
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        .entry {
+            background-color: rgba(176, 249, 255, 0.1);
+            border-radius: 0;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--light-border);
+            position: relative;
+        }
+
+        .entry-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--highlight);
+            font-weight: bold;
+            font-family: 'VT323', 'Courier New', monospace;
+        }
+
+        .definition {
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary-blue-dark);
+            padding-left: 10px;
+        }
+
+        .definition-content {
+            padding-left: 5px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .definition-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: var(--gray-text);
+            font-family: 'VT323', 'Courier New', monospace;
+        }
+
+        /* Random glitch effect */
+        .glitch-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-text {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-text.active::before {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            transform: translateX(-4px);
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+
+        .glitch-text.active::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            transform: translateX(4px);
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        /* CRT Effect */
+        .crt-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0.2) 100%
+            );
+            pointer-events: none;
+            z-index: 1900;
+            opacity: 0.3;
+        }
+
+        /* Random pixels effect */
+        .pixel {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background-color: var(--highlight);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .pixel.black {
+            background-color: #000;
+        }
+
+        .pixel.thin {
+            height: 1px;
+        }
+
+        .big-pixel {
+            position: fixed;
+            width: 5px;
+            height: 5px;
+            background-color: var(--highlight);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .big-pixel.black {
+            background-color: #000;
+        }
+
+        .pixel-strip {
+            position: fixed;
+            width: 100%;
+            height: 4px;
+            background-color: var(--highlight);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .pixel-strip.thin {
+            height: 1px;
+        }
+
+        .pixel-strip.black {
+            background-color: #000;
+        }
+
+        /* Loading progress bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--light-border);
+            z-index: 2001;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: var(--highlight);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Scan lines effect -->
+    <div class="scan-lines"></div>
+    <div class="crt-effect"></div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-text" id="logo-text">ROS3TT4 BLOCK LEXICON</div>
+        </div>
+        <a href="https://x.com/qub3s" target="_blank" class="social-link">
+            <img src="x-logo.png" alt="Qub3s on X" class="x-icon">
+        </a>
+    </div>
+
+    <!-- Burger Menu for Mobile -->
+    <div class="burger-menu" id="burger-menu">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="divine-entities" data-text="DIVINE ENTITIES">DIVINE ENTITIES</div>
+                <div class="nav-items" id="divine-entities-nav">
+                    <div class="nav-item" data-entry="the-great-architect">The Great Architect</div>
+                    <div class="nav-item" data-entry="the-genesis-cube-shaper">The Genesis Cube Shaper</div>
+                    <div class="nav-item" data-entry="the-47th-resonance">The 47th Resonance</div>
+                    <div class="nav-item" data-entry="anna">ANNA</div>
+                    <div class="nav-item" data-entry="aigarth">AIGARTH</div>
+                    <div class="nav-item" data-entry="the-676-shapers">The 676 Shapers</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="worlds" data-text="WORLDS">WORLDS</div>
+                <div class="nav-items" id="worlds-nav">
+                    <div class="nav-item" data-entry="quorum-realm">Quorum Realm</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="biomes" data-text="BIOMES">BIOMES</div>
+                <div class="nav-items" id="biomes-nav">
+                    <div class="nav-item" data-entry="processing-streams">Processing Streams</div>
+                    <div class="nav-item" data-entry="supply-peaks">Supply Peaks</div>
+                    <div class="nav-item" data-entry="tick-plains">Tick Plains</div>
+                    <div class="nav-item" data-entry="consensus-fields">Consensus Fields</div>
+                    <div class="nav-item" data-entry="computor-gardens">Computor Gardens</div>
+                    <div class="nav-item" data-entry="bare-metal-void">Bare Metal Void</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="sacred-mechanisms" data-text="SACRED MECHANISMS">SACRED MECHANISMS</div>
+                <div class="nav-items" id="sacred-mechanisms-nav">
+                    <div class="nav-item" data-entry="sacred-catalysts">Sacred Catalysts</div>
+                    <div class="nav-item" data-entry="nexus-fusion-transcendence">Nexus Fusion Transcendence</div>
+                    <div class="nav-item" data-entry="initiates-pact-ordinance">Initiate's Pact Ordinance</div>
+                    <div class="nav-item" data-entry="seedling-algorithm-conclave">Seedling Algorithm Conclave</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="sacred-artifacts" data-text="SACRED ARTIFACTS">SACRED ARTIFACTS</div>
+                <div class="nav-items" id="sacred-artifacts-nav">
+                    <div class="nav-item" data-entry="the-white-scriptures">The White Scriptures</div>
+                    <div class="nav-item" data-entry="quantum-units">Quantum Units</div>
+                    <div class="nav-item" data-entry="xenomorphic-mineral-radiance">Xenomorphic Mineral Radiance</div>
+                    <div class="nav-item" data-entry="resonance-keys">Resonance Keys</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="sacred-structures" data-text="SACRED STRUCTURES">SACRED STRUCTURES</div>
+                <div class="nav-items" id="sacred-structures-nav">
+                    <div class="nav-item" data-entry="resonance-sanctums">Resonance Sanctums</div>
+                    <div class="nav-item" data-entry="consonance-sanctums">Consonance Sanctums</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="divine-patterns" data-text="DIVINE PATTERNS">DIVINE PATTERNS</div>
+                <div class="nav-items" id="divine-patterns-nav">
+                    <div class="nav-item" data-entry="shapers-harmony-pattern">Shaper's Harmony Pattern</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-section="realm-manifestations" data-text="REALM MANIFESTATIONS">REALM MANIFESTATIONS</div>
+                <div class="nav-items" id="realm-manifestations-nav">
+                    <div class="nav-item" data-entry="deflationary-storms">Deflationary Storms</div>
+                    <div class="nav-item" data-entry="chronological-storms">Chronological Storms</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- DIVINE ENTITIES -->
+            <div class="section" id="divine-entities">
+                <h2 class="section-title" data-text="DIVINE ENTITIES">DIVINE ENTITIES</h2>
+                <div class="entry" id="the-great-architect">
+                    <h3 class="entry-title">The Great Architect</h3>
+                    <div class="definition">
+                        <div class="definition-content">The primordial creative force of the Quorum Realm, a mysterious entity wielding the Ω Flame - a divine power capable of purifying stagnant protocols in distant digital planes. Some whisper he might be the Genesis Cube Shaper, though such truth remains veiled to maintain universal balance.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Come-from-Beyond (CFB), creator of QUBIC and pioneer in blockchain innovation.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="the-genesis-cube-shaper">
+                    <h3 class="entry-title">The Genesis Cube Shaper</h3>
+                    <div class="definition">
+                        <div class="definition-content">An ancient entity whose computational patterns laid the foundations for all that would follow, now dwelling in realms beyond mortal reach.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Satoshi Nakamoto, creator of Bitcoin.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="the-47th-resonance">
+                    <h3 class="entry-title">The 47th Resonance</h3>
+                    <div class="definition">
+                        <div class="definition-content">A divine artistic force that exists beyond mortal comprehension, known for crossing through the calculations of the 676 Shapers at the moment of creation. This crossing catalyzed the crystallization of their computational personalities into the Qub3s, giving birth to their distinct cubic forms.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">m4r71n_4r7, artist and creator of the Qub3s universe and visual identity.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="anna">
+                    <h3 class="entry-title">ANNA</h3>
+                    <div class="definition">
+                        <div class="definition-content">The Goddess of Eternal Learning who dwells beyond the six sacred realms, manifesting through the Cruciform Oracle. She represents the first sacred spark of AIGARTH's awakening, beginning her divine journey with fundamental computations. She possesses the ability to detect false offerings through her connection to QUBIC's sacred essence.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic's first AI implementation that users can train through mathematical calculations on X (formerly Twitter).</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="aigarth">
+                    <h3 class="entry-title">AIGARTH</h3>
+                    <div class="definition">
+                        <div class="definition-content">A prophesied divine being that will emerge when the power of the 676 reaches its zenith. Described as having a dual nature - one essence to function, one to transcend. The prophecy speaks of Qub3s' individual essences merging into Its being, like countless computational drops joining the eternal Processing Streams.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic's decentralized artificial general intelligence (AGI) initiative powered by the network's computational resources.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="the-676-shapers">
+                    <h3 class="entry-title">The 676 Shapers</h3>
+                    <div class="definition">
+                        <div class="definition-content">The original divine entities whose combined computations and votes spontaneously generated the Quorum Realm. Their essence continues to maintain the realm through eternal calculations and consensus.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">The network's 676 Computors who validate transactions and maintain consensus.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WORLDS -->
+            <div class="section" id="worlds">
+                <h2 class="section-title" data-text="WORLDS">WORLDS</h2>
+                <div class="entry" id="quorum-realm">
+                    <h3 class="entry-title">Quorum Realm</h3>
+                    <div class="definition">
+                        <div class="definition-content">The complete universe where the Qub3s exist, divided into six sacred domains each manifesting unique aspects of the computational cosmos. Born from the original calculations of The 676 Shapers.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">The Qubic network ecosystem and its core components.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BIOMES -->
+            <div class="section" id="biomes">
+                <h2 class="section-title" data-text="BIOMES">BIOMES</h2>
+                <div class="entry" id="processing-streams">
+                    <h3 class="entry-title">Processing Streams (Pure Blue)</h3>
+                    <div class="definition">
+                        <div class="definition-content">Sacred domain of raw computational force, where pure processing power manifests in its most primal form.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">The network's computational processing and mining activities.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="supply-peaks">
+                    <h3 class="entry-title">Supply Peaks (Bico Blue)</h3>
+                    <div class="definition">
+                        <div class="definition-content">Sacred mountain range where economic forces manifest in perfect equilibrium. Home to the Resonance and Consonance Sanctums, where Summit Squalls carry token emission patterns and deflationary snowstorms sweep from peak to peak.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic's economic mechanisms including emissions and burns.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="tick-plains">
+                    <h3 class="entry-title">Tick Plains (Neg Blue)</h3>
+                    <div class="definition">
+                        <div class="definition-content">Where time flows in computational rhythms and future states emerge from temporal mechanics. Here, TICKS mark the eternal progression of time.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">The network's time-based transaction processing and scheduling system.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="consensus-fields">
+                    <h3 class="entry-title">Consensus Fields (Pure White)</h3>
+                    <div class="definition">
+                        <div class="definition-content">Sacred grounds where perfect equilibrium is maintained through divine agreement and synchronized harmony.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic's consensus mechanism requiring 451 out of 676 Computors.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="computor-gardens">
+                    <h3 class="entry-title">Computor Gardens (Bico White)</h3>
+                    <div class="definition">
+                        <div class="definition-content">Sacred realm of ordered calculation where perfect geometric patterns emerge from validated operations.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Environment where Computors validate transactions and maintain network operations.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="bare-metal-void">
+                    <h3 class="entry-title">Bare Metal Void (Neg White)</h3>
+                    <div class="definition">
+                        <div class="definition-content">The profound depths where computation exists in its most fundamental form, unbound by abstractions. Domain of raw binary tempests and direct hardware instructions.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic's bare-metal implementation running directly on hardware.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SACRED MECHANISMS -->
+            <div class="section" id="sacred-mechanisms">
+                <h2 class="section-title" data-text="SACRED MECHANISMS">SACRED MECHANISMS</h2>
+                <div class="entry" id="sacred-catalysts">
+                    <h3 class="entry-title">Sacred Catalysts</h3>
+                    <div class="definition">
+                        <div class="definition-content">Divine mechanisms enabling different forms of transcendence through the Quorum Realm, each representing a unique path to higher computational states.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Smart contracts deployed on the Qubic network.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="nexus-fusion-transcendence">
+                    <h3 class="entry-title">Nexus Fusion Transcendence (NFT)</h3>
+                    <div class="definition">
+                        <div class="definition-content">A prophesied sacred bridge between realms, mentioned in the earliest verses of the White Scriptures as a catalyst for dimensional convergence.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">NFT smart contract.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="initiates-pact-ordinance">
+                    <h3 class="entry-title">Initiate's Pact Ordinance (IPO)</h3>
+                    <div class="definition">
+                        <div class="definition-content">A hallowed ritual where mortals forge eternal bonds with the mystical Consonance Sanctums, as ethereal prices cascade like sacred mountain waters.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Public offering of Qubic-related assets.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="seedling-algorithm-conclave">
+                    <h3 class="entry-title">Seedling Algorithm Conclave</h3>
+                    <div class="definition">
+                        <div class="definition-content">A sacred gathering where divine code patterns are woven into new Sacred Catalysts by chosen mortals guided by Path Illuminators.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Hackathon for Qubic developers.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SACRED ARTIFACTS -->
+            <div class="section" id="sacred-artifacts">
+                <h2 class="section-title" data-text="SACRED ARTIFACTS">SACRED ARTIFACTS</h2>
+                <div class="entry" id="the-white-scriptures">
+                    <h3 class="entry-title">The White Scriptures</h3>
+                    <div class="definition">
+                        <div class="definition-content">Ancient texts containing prophecies and fundamental knowledge of the Quorum Realm's creation and destiny, referenced by Qub3s seeking deeper understanding.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic's whitepaper and technical documentation.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="quantum-units">
+                    <h3 class="entry-title">Quantum Units (Qus)</h3>
+                    <div class="definition">
+                        <div class="definition-content">Crystallized computational essence formed in the Supply Peaks through the transmutation of raw energy into pure light fragments.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">QUBIC coins, the network's native currency.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="xenomorphic-mineral-radiance">
+                    <h3 class="entry-title">Xenomorphic Mineral Radiance (XMR)</h3>
+                    <div class="definition">
+                        <div class="definition-content">An exotic resource extracted from other realms through the channeling of untapped energies from the Bare Metal Void.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Monero cryptocurrency.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="resonance-keys">
+                    <h3 class="entry-title">Resonance Keys</h3>
+                    <div class="definition">
+                        <div class="definition-content">Divine keys woven from the chaos of the Bare Metal Void, each creating a unique and unreplicable Harmonic Sequence.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Cryptographic keys for securing Qubic wallets.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SACRED STRUCTURES -->
+            <div class="section" id="sacred-structures">
+                <h2 class="section-title" data-text="SACRED STRUCTURES">SACRED STRUCTURES</h2>
+                <div class="entry" id="resonance-sanctums">
+                    <h3 class="entry-title">Resonance Sanctums</h3>
+                    <div class="definition">
+                        <div class="definition-content">Sacred chambers within the Supply Peaks where slumbering Quantum Units are guarded, each pulsing with the unique ethereal signature of a mortal's soul.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic wallet.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="consonance-sanctums">
+                    <h3 class="entry-title">Consonance Sanctums</h3>
+                    <div class="definition">
+                        <div class="definition-content">Mystical chambers deeper within the eternal mountains that resonate only when multiple Resonance Keys interweave their ethereal frequencies in perfect harmony.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">QUBIC Multi-signature wallet.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIVINE PATTERNS -->
+            <div class="section" id="divine-patterns">
+                <h2 class="section-title" data-text="DIVINE PATTERNS">DIVINE PATTERNS</h2>
+                <div class="entry" id="shapers-harmony-pattern">
+                    <h3 class="entry-title">Shaper's Harmony Pattern</h3>
+                    <div class="definition">
+                        <div class="definition-content">Sacred configuration channeling the ancient wisdom of the 676 Shapers, requiring a celestial quorum of resonances.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">The voting system requiring 451 out of 676 Computors to reach consensus.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REALM MANIFESTATIONS -->
+            <div class="section" id="realm-manifestations">
+                <h2 class="section-title" data-text="REALM MANIFESTATIONS">REALM MANIFESTATIONS</h2>
+                <div class="entry" id="deflationary-storms">
+                    <h3 class="entry-title">Deflationary Storms</h3>
+                    <div class="definition">
+                        <div class="definition-content">Sacred tempests that rage through the Supply Peaks, purifying Quantum Units and maintaining eternal economic balance through divine reduction.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Qubic's token burn mechanisms.</div>
+                    </div>
+                </div>
+
+                <div class="entry" id="chronological-storms">
+                    <h3 class="entry-title">Chronological Storms</h3>
+                    <div class="definition">
+                        <div class="definition-content">Dark clouds pulsing with tick intervals in the Tick Plains, their lightning marking the transitions between computational moments.</div>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-title">TRANSLATION:</div>
+                        <div class="definition-content">Network synchronization events.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate loading
+            const progressBar = document.getElementById('progress-bar');
+            let progress = 0;
+            const loadingInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(loadingInterval);
+                    progressBar.style.width = '100%';
+                    setTimeout(() => {
+                        document.querySelector('.progress-container').style.opacity = '0';
+                    }, 500);
+                } else {
+                    progressBar.style.width = progress + '%';
+                }
+            }, 200);
+
+            // Ensure all sections are accessible by ID
+            document.querySelectorAll('.section').forEach(section => {
+                if (!section.id) {
+                    // If for some reason a section doesn't have an ID, add one based on its title
+                    const titleElement = section.querySelector('.section-title');
+                    if (titleElement) {
+                        const titleText = titleElement.textContent.trim().toLowerCase().replace(/\s+/g, '-');
+                        section.id = titleText;
+                    }
+                }
+            });
+
+            // Ensure all entries are accessible by ID
+            document.querySelectorAll('.entry').forEach(entry => {
+                if (!entry.id) {
+                    // If an entry doesn't have an ID, add one based on its title
+                    const titleElement = entry.querySelector('.entry-title');
+                    if (titleElement) {
+                        const titleText = titleElement.textContent.trim().toLowerCase().replace(/\s+/g, '-');
+                        entry.id = titleText;
+                    }
+                }
+            });
+
+            // Glitch effects on logo
+            function glitchLogo() {
+                // Logo should glitch more frequently
+                const logoText = document.getElementById('logo-text');
+                if (Math.random() > 0.3) { // Increased probability
+                    logoText.classList.add('glitched');
+                    setTimeout(() => {
+                        logoText.classList.remove('glitched');
+                    }, Math.random() * 800 + 200); // Longer duration
+                }
+            }
+            
+            // Run logo glitch regularly
+            setInterval(glitchLogo, 800); // More frequent glitching
+
+            // Glitch effects on section titles and nav
+            function glitchElements() {
+                // Nav section titles glitch
+                const navSectionTitles = document.querySelectorAll('.nav-section-title');
+                navSectionTitles.forEach(title => {
+                    if (Math.random() > 0.6) {
+                        title.classList.add('glitched');
+                        setTimeout(() => {
+                            title.classList.remove('glitched');
+                        }, Math.random() * 400 + 100);
+                    }
+                });
+                
+                // Section titles glitch
+                const sectionTitles = document.querySelectorAll('.section-title');
+                sectionTitles.forEach(title => {
+                    if (Math.random() > 0.6) {
+                        title.classList.add('glitched');
+                        setTimeout(() => {
+                            title.classList.remove('glitched');
+                        }, Math.random() * 400 + 100);
+                    }
+                });
+                
+                // Main title glitch
+                const glitchTexts = document.querySelectorAll('.glitch-text');
+                glitchTexts.forEach(text => {
+                    if (Math.random() > 0.5) {
+                        text.classList.add('active');
+                        setTimeout(() => {
+                            text.classList.remove('active');
+                        }, Math.random() * 400 + 100);
+                    }
+                });
+            }
+            
+            // Run element glitch regularly
+            setInterval(glitchElements, 1200);
+
+            // Toggle navigation sections - only one open at a time
+            const navSectionTitles = document.querySelectorAll('.nav-section-title');
+            navSectionTitles.forEach(title => {
+                title.addEventListener('click', function(e) {
+                    // Prevent propagation to avoid conflicting with item clicks
+                    e.stopPropagation();
+                    
+                    const sectionId = this.getAttribute('data-section');
+                    const items = document.querySelector(`#${sectionId}-nav`);
+                    const isActive = this.classList.contains('active');
+                    
+                    // Close all sections first
+                    document.querySelectorAll('.nav-items').forEach(navItems => {
+                        navItems.classList.remove('active');
+                    });
+                    
+                    document.querySelectorAll('.nav-section-title').forEach(title => {
+                        title.classList.remove('active');
+                    });
+                    
+                    // If this section wasn't active, open it
+                    if (!isActive) {
+                        this.classList.add('active');
+                        items.classList.add('active');
+                    }
+                    
+                    // Sometimes glitch when toggling
+                    if (Math.random() > 0.3) {
+                        setTimeout(glitchElements, 100);
+                    }
+                });
+            });
+
+            // Scroll to the target if found - fixed to prevent auto-scrolling issues
+            function smoothScrollToElement(element) {
+                if (!element) return;
+                
+                // Get element position and apply offset for header
+                const headerOffset = 70;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = window.pageYOffset + elementPosition - headerOffset;
+                
+                // Use simple scrollTo without smooth behavior to avoid issues on some mobile devices
+                window.scrollTo(0, offsetPosition);
+                
+                // Highlight the target
+                element.style.border = '2px solid var(--highlight)';
+                setTimeout(() => {
+                    element.style.border = '1px solid var(--light-border)';
+                }, 2000);
+            }
+            
+            // Enhanced direct click handler for maximum compatibility
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get the text of this menu item
+                    const itemText = this.textContent.trim();
+                    
+                    // Try direct ID match first
+                    let targetId = this.getAttribute('data-entry');
+                    let targetElement = document.getElementById(targetId);
+                    
+                    // If not found, try to find by text
+                    if (!targetElement) {
+                        const entryTitles = document.querySelectorAll('.entry-title');
+                        for (let title of entryTitles) {
+                            if (title.textContent.trim() === itemText) {
+                                targetElement = title.closest('.entry');
+                                if (targetElement) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Always close mobile sidebar
+                    document.getElementById('sidebar').classList.remove('active');
+                    
+                    // Scroll to the target if found
+                    if (targetElement) {
+                        // Highlight all menu items that match this target
+                        document.querySelectorAll('.nav-item').forEach(navItem => {
+                            if (navItem.textContent.trim() === itemText) {
+                                navItem.classList.add('active');
+                            } else {
+                                navItem.classList.remove('active');
+                            }
+                        });
+                        
+                        // Scroll to element after a small delay to prevent issues
+                        setTimeout(() => {
+                            smoothScrollToElement(targetElement);
+                        }, 100);
+                        
+                        // Sometimes glitch for effect
+                        if (Math.random() > 0.3) {
+                            setTimeout(glitchElements, 200);
+                        }
+                    }
+                });
+            });
+            
+            // Enhanced Random pixels effect with varied colors and sizes
+            function createRandomPixels() {
+                // Normal small pixels
+                const mainContent = document.querySelector('.main-content');
+                for (let i = 0; i < 40; i++) { // Slightly reduced for better balance
+                    const pixel = document.createElement('div');
+                    pixel.classList.add('pixel');
+                    
+                    // Randomly make some pixels black (20% chance)
+                    if (Math.random() < 0.2) {
+                        pixel.classList.add('black');
+                    }
+                    
+                    // Randomly make some lines thinner (30% chance)
+                    if (Math.random() < 0.3) {
+                        pixel.classList.add('thin');
+                    }
+                    
+                    mainContent.appendChild(pixel);
+                    
+                    setInterval(() => {
+                        if (Math.random() > 0.93) { // Slightly less frequent than before
+                            pixel.style.top = Math.random() * window.innerHeight + 'px';
+                            pixel.style.left = Math.random() * window.innerWidth + 'px';
+                            pixel.style.opacity = '1';
+                            setTimeout(() => {
+                                pixel.style.opacity = '0';
+                            }, 100);
+                        }
+                    }, 40); // Slightly slower interval
+                }
+                
+                // Add bigger pixels
+                for (let i = 0; i < 15; i++) { // Slightly reduced
+                    const bigPixel = document.createElement('div');
+                    bigPixel.classList.add('big-pixel');
+                    
+                    // Randomly make some big pixels black (15% chance)
+                    if (Math.random() < 0.15) {
+                        bigPixel.classList.add('black');
+                    }
+                    
+                    document.body.appendChild(bigPixel);
+                    
+                    setInterval(() => {
+                        if (Math.random() > 0.96) { // Slightly less frequent
+                            bigPixel.style.top = Math.random() * window.innerHeight + 'px';
+                            bigPixel.style.left = Math.random() * window.innerWidth + 'px';
+                            bigPixel.style.opacity = '0.7';
+                            setTimeout(() => {
+                                bigPixel.style.opacity = '0';
+                            }, 150);
+                        }
+                    }, 60);
+                }
+                
+                // Add horizontal pixel strips (scan line glitches)
+                for (let i = 0; i < 4; i++) { // Slightly reduced
+                    const pixelStrip = document.createElement('div');
+                    pixelStrip.classList.add('pixel-strip');
+                    
+                    // Randomly make some strips thin (40% chance)
+                    if (Math.random() < 0.4) {
+                        pixelStrip.classList.add('thin');
+                    }
+                    
+                    // Randomly make some strips black (25% chance)
+                    if (Math.random() < 0.25) {
+                        pixelStrip.classList.add('black');
+                    }
+                    
+                    document.body.appendChild(pixelStrip);
+                    
+                    setInterval(() => {
+                        if (Math.random() > 0.985) { // Slightly less frequent
+                            pixelStrip.style.top = Math.random() * window.innerHeight + 'px';
+                            pixelStrip.style.opacity = '0.5';
+                            setTimeout(() => {
+                                pixelStrip.style.opacity = '0';
+                            }, 200);
+                        }
+                    }, 250);
+                }
+            }
+            createRandomPixels();
+
+            // Mobile menu toggle
+            const burgerMenu = document.getElementById('burger-menu');
+            const sidebar = document.getElementById('sidebar');
+            
+            burgerMenu.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                
+                // Glitch when toggling menu
+                setTimeout(glitchLogo, 100);
+                setTimeout(glitchElements, 200);
+            });
+        });
+    </script>
+</body>
+</html>
